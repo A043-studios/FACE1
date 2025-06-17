@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 Facial Emotion Detector</title>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 800px;
+        }
+        
+        .emoji {
+            font-size: 80px;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+            transition: transform 0.2s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .video-container {
+            position: relative;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+        
+        .browser-chrome {
+            background: #e8e8e8;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .browser-actions {
+            width: 12px;
+            height: 12px;
+            background: #ff5f56;
+            border-radius: 50%;
+            position: relative;
+        }
+        
+        .browser-actions::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            width: 12px;
+            height: 12px;
+            background: #ffbd2e;
+            border-radius: 50%;
+        }
+        
+        .browser-actions::after {
+            content: '';
+            position: absolute;
+            left: 40px;
+            width: 12px;
+            height: 12px;
+            background: #27c93f;
+            border-radius: 50%;
+        }
+        
+        video {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 36px;
+            left: 0;
+            pointer-events: none;
+        }
+        
+        button {
+            background: white;
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 20px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-direction: column;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .note {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+        
+        .progress {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .debug-panel {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 Facial Emotion Detector</h1>
+        <p>AI-powered real-time emotion recognition using your camera</p>
+        
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading AI models...</p>
+            <div id="progress" class="progress">Initializing...</div>
+        </div>
+        
+        <div id="main-content" style="display: none;">
+            <div class="emoji" id="emoji">😐</div>
+            <div class="status">You look <span id="emotion-text">neutral</span>!</div>
+            <div style="font-size: 12px; opacity: 0.7; margin: 5px 0;">
+                ⚡ Real-time emotion detection | 📹 Camera refreshing every 5 seconds
+            </div>
+            
+            <!-- Debug panel to show real-time emotions -->
+            <div class="debug-panel">
+                <div style="margin-bottom: 5px;"><strong>Real-time Emotions:</strong></div>
+                <div id="emotion-values">Waiting for face detection...</div>
+                <div style="margin-top: 5px;">
+                    <strong>Try making exaggerated expressions!</strong><br>
+                    😀 Big smile | 😢 Frown deeply | 😠 Furrow brow | 😲 Open mouth wide
+                </div>
+            </div>
+            
+            <div class="video-container">
+                <div class="browser-chrome">
+                    <div class="browser-actions"></div>
+                </div>
+                <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                <canvas id="canvas"></canvas>
+            </div>
+            
+            <button id="start-camera" onclick="startCamera()">Start Camera</button>
+            
+            <div id="error" class="error" style="display: none;"></div>
+            
+            <p class="note">
+                🔒 Privacy-first: You are not being recorded - all processing happens locally in your browser!
+            </p>
+            
+            <div class="footer">
+                <p>Built with Face-API.js and TensorFlow.js</p>
+                <p>Detects: Happy, Sad, Angry, Fearful, Disgusted, Surprised, Neutral</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusIcons = {
+            default: { emoji: '😐', name: 'neutral' },
+            neutral: { emoji: '😐', name: 'neutral' },
+            happy: { emoji: '😀', name: 'happy' },
+            sad: { emoji: '😥', name: 'sad' },
+            angry: { emoji: '😠', name: 'angry' },
+            fearful: { emoji: '😨', name: 'fearful' },
+            disgusted: { emoji: '🤢', name: 'disgusted' },
+            surprised: { emoji: '😲', name: 'surprised' },
+        };
+
+        let modelsLoaded = false;
+        let detectionInterval = null;
+        let refreshInterval = null;
+        let currentEmotion = 'neutral';
+        let emotionHistory = [];
+        let lastUpdateTime = Date.now();
+
+        function updateProgress(message) {
+            document.getElementById('progress').textContent = message;
+        }
+
+        async function loadModels() {
+            try {
+                console.log('Starting to load models from GitHub...');
+                updateProgress('Loading face detection model...');
+                
+                // Load models from GitHub repository (works for online hosting)
+                const MODEL_URL = 'https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights';
+                
+                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+                updateProgress('Loading facial landmarks model...');
+                
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                updateProgress('Loading face recognition model...');
+                
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+                updateProgress('Loading emotion detection model...');
+                
+                await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+                updateProgress('All models loaded successfully!');
+                
+                modelsLoaded = true;
+                console.log('All Face-API models loaded successfully');
+                
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error loading face-api models:', error);
+                updateProgress('Error loading models');
+                showError(`Failed to load AI models: ${error.message}`);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }
+        }
+
+        async function startCameraStream() {
+            const video = document.getElementById('video');
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        width: 640, 
+                        height: 480,
+                        facingMode: 'user'
+                    }
+                });
+                
+                video.srcObject = stream;
+                console.log('Camera stream started/refreshed');
+                
+            } catch (error) {
+                console.error('Error refreshing camera:', error);
+                showError('Camera refresh failed. Continuing with current stream.');
+            }
+        }
+
+        async function startCamera() {
+            const video = document.getElementById('video');
+            const button = document.getElementById('start-camera');
+            
+            try {
+                await startCameraStream();
+                button.style.display = 'none';
+                hideError();
+                
+                video.addEventListener('play', () => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    startDetection();
+                });
+                
+                console.log('Camera started with auto-refresh enabled');
+                
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                showError('Unable to access camera. Please ensure you have granted camera permissions.');
+            }
+        }
+
+        function startDetection() {
+            if (detectionInterval) {
+                clearInterval(detectionInterval);
+            }
+            
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+            
+            // Continuous detection every 100ms for smooth real-time feedback
+            detectionInterval = setInterval(async () => {
+                await detectEmotions();
+            }, 100);
+            
+            // Auto-refresh every 5 seconds to keep recording fresh
+            refreshInterval = setInterval(() => {
+                refreshCamera();
+            }, 5000);
+            
+            console.log('Started continuous detection and 5-second refresh cycle');
+        }
+
+        function refreshCamera() {
+            const video = document.getElementById('video');
+            if (video && video.srcObject) {
+                console.log('Refreshing camera stream...');
+                
+                // Stop current stream
+                const tracks = video.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                
+                // Restart camera
+                setTimeout(() => {
+                    startCameraStream();
+                }, 100);
+            }
+        }
+
+        async function detectEmotions() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            
+            if (!video || !canvas || !modelsLoaded) return;
+
+            try {
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 416,
+                        scoreThreshold: 0.3
+                    }))
+                    .withFaceExpressions();
+
+                const displaySize = { width: video.videoWidth, height: video.videoHeight };
+                const resizedDetections = faceapi.resizeResults(detections, displaySize);
+                
+                // Clear canvas
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw detections
+                faceapi.draw.drawDetections(canvas, resizedDetections);
+                faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+                if (detections.length > 0) {
+                    // Get all emotion expressions
+                    const expressions = detections[0].expressions;
+                    let maxEmotion = 'neutral';
+                    let maxValue = 0;
+
+                    // Find highest confidence emotion
+                    Object.entries(expressions).forEach(([emotion, value]) => {
+                        if (value > maxValue) {
+                            maxEmotion = emotion;
+                            maxValue = value;
+                        }
+                    });
+
+                    // Update debug panel with real-time values
+                    updateDebugPanel(expressions);
+
+                    // Store emotion in history for averaging
+                    emotionHistory.push({
+                        emotion: maxEmotion,
+                        confidence: maxValue,
+                        timestamp: Date.now()
+                    });
+                    
+                    // Keep only last 30 detections (about 3 seconds worth)
+                    if (emotionHistory.length > 30) {
+                        emotionHistory = emotionHistory.slice(-30);
+                    }
+                    
+                    // Update emotion immediately when there's a strong, consistent change
+                    const now = Date.now();
+                    const dominantEmotion = getDominantEmotion();
+                    
+                    // Update if:
+                    // 1. Strong emotion detected (>40% confidence)
+                    // 2. Different emotion with decent confidence (>25%)
+                    // 3. Been too long since last update (5 seconds max)
+                    const shouldUpdate = 
+                        maxValue > 0.4 || 
+                        (dominantEmotion !== currentEmotion && maxValue > 0.25) ||
+                        (now - lastUpdateTime > 5000);
+                    
+                    if (shouldUpdate) {
+                        updateEmotion(dominantEmotion);
+                        currentEmotion = dominantEmotion;
+                        lastUpdateTime = now;
+                    }
+                    
+                    // Show real-time detection for strong emotions
+                    if (maxValue > 0.3) {
+                        console.log(`Strong emotion detected: ${maxEmotion} (${(maxValue * 100).toFixed(1)}%)`);
+                    }
+                } else {
+                    updateEmotion('default');
+                    updateDebugPanel({});
+                }
+            } catch (error) {
+                console.error('Error detecting emotions:', error);
+            }
+        }
+
+        function getDominantEmotion() {
+            if (emotionHistory.length === 0) return 'neutral';
+            
+            // Get the most recent emotions (last 2 seconds)
+            const recentEmotions = emotionHistory.slice(-20);
+            
+            // Count occurrences of each emotion in recent history
+            const emotionCounts = {};
+            const emotionConfidences = {};
+            
+            recentEmotions.forEach(entry => {
+                emotionCounts[entry.emotion] = (emotionCounts[entry.emotion] || 0) + 1;
+                emotionConfidences[entry.emotion] = Math.max(
+                    emotionConfidences[entry.emotion] || 0, 
+                    entry.confidence
+                );
+            });
+            
+            // Find emotion with highest occurrence and confidence
+            let dominantEmotion = 'neutral';
+            let maxScore = 0;
+            
+            Object.entries(emotionCounts).forEach(([emotion, count]) => {
+                const confidence = emotionConfidences[emotion] || 0;
+                const score = count * confidence;
+                
+                // Boost non-neutral emotions to make detection more sensitive
+                const boost = emotion !== 'neutral' ? 1.5 : 1;
+                const finalScore = score * boost;
+                
+                if (finalScore > maxScore) {
+                    dominantEmotion = emotion;
+                    maxScore = finalScore;
+                }
+            });
+            
+            return dominantEmotion;
+        }
+
+        function updateDebugPanel(expressions) {
+            const debugElement = document.getElementById('emotion-values');
+            if (!debugElement) return;
+            
+            if (Object.keys(expressions).length === 0) {
+                debugElement.innerHTML = '<span style="color: #ff6b6b;">No face detected</span>';
+                return;
+            }
+            
+            // Sort emotions by confidence
+            const sortedEmotions = Object.entries(expressions)
+                .sort(([,a], [,b]) => b - a)
+                .map(([emotion, value]) => {
+                    const percentage = (value * 100).toFixed(1);
+                    const color = value > 0.3 ? '#4ecdc4' : value > 0.1 ? '#ffe66d' : '#95a5a6';
+                    return `<span style="color: ${color};">${emotion}: ${percentage}%</span>`;
+                });
+            
+            debugElement.innerHTML = sortedEmotions.join(' | ');
+        }
+
+        function updateEmotion(emotion) {
+            const status = statusIcons[emotion] || statusIcons.default;
+            document.getElementById('emoji').textContent = status.emoji;
+            document.getElementById('emotion-text').textContent = status.name;
+            
+            // Add visual feedback for updates
+            const emojiElement = document.getElementById('emoji');
+            emojiElement.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                emojiElement.style.transform = 'scale(1)';
+            }, 200);
+            
+            console.log(`Emotion updated to: ${emotion} at ${new Date().toLocaleTimeString()}`);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // Load models when page loads
+        window.addEventListener('load', loadModels);
+    </script>
+</body>
+</html>
