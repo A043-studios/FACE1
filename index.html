@@ -6,234 +6,636 @@
     <title>🎭 Facial Emotion Detector</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
+        /* Apple-inspired design system */
+        :root {
+            /* Apple's signature colors */
+            --apple-blue: #007AFF;
+            --apple-blue-dark: #0056CC;
+            --apple-gray: #8E8E93;
+            --apple-gray-light: #F2F2F7;
+            --apple-gray-dark: #1C1C1E;
+            --apple-green: #34C759;
+            --apple-orange: #FF9500;
+            --apple-red: #FF3B30;
+            --apple-purple: #AF52DE;
+
+            /* Apple's neutral palette */
+            --background: #FFFFFF;
+            --background-secondary: #F2F2F7;
+            --surface: #FFFFFF;
+            --text-primary: #000000;
+            --text-secondary: #8E8E93;
+            --text-tertiary: #C7C7CC;
+            --separator: #C6C6C8;
+
+            /* Apple's spacing system */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 48px;
+            --spacing-xxxl: 64px;
+
+            /* Apple's border radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            /* Apple's shadows */
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
             margin: 0;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0;
+            background: var(--background);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            color: var(--text-primary);
+            line-height: 1.47059;
+            font-size: 17px;
+            font-weight: 400;
         }
-        
-        .container {
+
+        .app-container {
+            width: 100%;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .hero-section {
             text-align: center;
-            max-width: 800px;
+            padding: var(--spacing-xxxl) var(--spacing-xl) var(--spacing-xxl);
+            background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 100%);
+            width: 100%;
         }
-        
+
+        .hero-section h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-md) 0;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .hero-section .subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin: 0 0 var(--spacing-xl) 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: var(--spacing-xl);
+            padding: var(--spacing-xxl) var(--spacing-xl);
+            align-items: start;
+            width: 100%;
+            max-width: none;
+        }
+
+        .emotion-panel {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--separator);
+            position: sticky;
+            top: var(--spacing-lg);
+        }
+
+        .emoji-display {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
         .emoji {
-            font-size: 80px;
-            margin: 20px 0;
-            animation: bounce 2s infinite;
-            transition: transform 0.2s ease;
+            font-size: 6rem;
+            margin: var(--spacing-lg) 0;
+            display: block;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
         }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
+
+        .status-text {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: var(--spacing-md) 0;
+            letter-spacing: -0.01em;
         }
-        
-        .status {
-            font-size: 24px;
-            margin: 20px 0;
-            font-weight: bold;
+
+        .status-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: var(--spacing-xl);
         }
-        
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            background: var(--apple-green);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+
+        .video-section {
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--separator);
+        }
+
+        .video-header {
+            background: var(--text-primary);
+            color: white;
+            padding: var(--spacing-lg);
+            text-align: center;
+        }
+
+        .video-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
         .video-container {
             position: relative;
-            background: white;
-            border-radius: 10px;
+            background: #000;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            margin: 20px 0;
         }
-        
-        .browser-chrome {
-            background: #e8e8e8;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .browser-actions {
-            width: 12px;
-            height: 12px;
-            background: #ff5f56;
-            border-radius: 50%;
-            position: relative;
-        }
-        
-        .browser-actions::before {
-            content: '';
-            position: absolute;
-            left: 20px;
-            width: 12px;
-            height: 12px;
-            background: #ffbd2e;
-            border-radius: 50%;
-        }
-        
-        .browser-actions::after {
-            content: '';
-            position: absolute;
-            left: 40px;
-            width: 12px;
-            height: 12px;
-            background: #27c93f;
-            border-radius: 50%;
-        }
-        
+
         video {
             display: block;
-            max-width: 100%;
+            width: 100%;
             height: auto;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
         }
-        
+
         canvas {
             position: absolute;
-            top: 36px;
+            top: 0;
             left: 0;
             pointer-events: none;
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        
-        button {
-            background: white;
-            color: #333;
+
+        .debug-panel {
+            background: var(--background-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-xl) 0;
+            border: 1px solid var(--separator);
+        }
+
+        .debug-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-md) 0;
+            letter-spacing: -0.01em;
+        }
+
+        .debug-content {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            background: var(--surface);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--separator);
+        }
+
+        .tips-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
+            border: 1px solid var(--separator);
+            border-left: 4px solid var(--apple-blue);
+        }
+
+        .tips-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--apple-blue);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        .tips-content {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .btn-primary {
+            background: var(--apple-blue);
+            color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 25px;
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: 1.0625rem;
+            font-weight: 600;
+            border-radius: 50px;
             cursor: pointer;
-            margin: 20px;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+            min-width: 160px;
+            letter-spacing: -0.01em;
+            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.3);
         }
-        
-        button:hover {
-            background: #f0f0f0;
+
+        .btn-primary:hover {
+            background: var(--apple-blue-dark);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
         }
-        
-        button:disabled {
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        
-        .loading {
+
+        .loading-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
             flex-direction: column;
+            padding: var(--spacing-xxxl);
+            background: var(--surface);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--separator);
+            text-align: center;
         }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top: 4px solid white;
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--text-tertiary);
+            border-top: 3px solid var(--apple-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: var(--spacing-lg);
         }
-        
+
+        .loading-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-sm) 0;
+            letter-spacing: -0.01em;
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .error {
-            background: rgba(255,0,0,0.2);
-            border: 1px solid rgba(255,0,0,0.5);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
+
+        .error-card {
+            background: var(--surface);
+            border: 1px solid var(--apple-red);
+            border-left: 4px solid var(--apple-red);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-lg) 0;
         }
-        
-        .note {
-            font-size: 14px;
-            opacity: 0.8;
-            margin-top: 20px;
+
+        .error-title {
+            color: var(--apple-red);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 var(--spacing-sm) 0;
         }
-        
-        .progress {
-            margin: 10px 0;
-            font-size: 14px;
+
+        .error-message {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin: 0;
+            line-height: 1.5;
         }
-        
-        .debug-panel {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 5px;
-            margin: 10px 0;
-            font-size: 12px;
-            font-family: monospace;
+
+        .privacy-note {
+            background: var(--background-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            margin: var(--spacing-xl) var(--spacing-xl);
+            text-align: center;
+            border: 1px solid var(--separator);
         }
-        
+
+        .error-card {
+            margin: var(--spacing-lg) var(--spacing-xl);
+        }
+
+        .privacy-note .icon {
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .privacy-note .title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .privacy-note .description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
         .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            opacity: 0.7;
+            text-align: center;
+            padding: var(--spacing-xxl) var(--spacing-xl);
+            margin-top: var(--spacing-xxxl);
+            border-top: 1px solid var(--separator);
+            width: 100%;
+        }
+
+        .footer-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-sm) 0;
+        }
+
+        .footer-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Responsive design for full width */
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr 1.2fr;
+                padding: var(--spacing-xl) var(--spacing-lg);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-lg);
+                padding: var(--spacing-lg);
+            }
+
+            .emotion-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: var(--spacing-xl) var(--spacing-md);
+            }
+
+            .main-grid {
+                padding: var(--spacing-md);
+            }
+
+            .privacy-note {
+                margin: var(--spacing-xl) var(--spacing-md);
+            }
+
+            .error-card {
+                margin: var(--spacing-lg) var(--spacing-md);
+            }
+
+            .footer {
+                padding: var(--spacing-xxl) var(--spacing-md);
+            }
+
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
+            .emoji {
+                font-size: 4.5rem;
+            }
+
+            .status-text {
+                font-size: 1.5rem;
+            }
+
+            .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-section {
+                padding: var(--spacing-lg) var(--spacing-sm);
+            }
+
+            .main-grid {
+                padding: var(--spacing-sm);
+            }
+
+            .privacy-note {
+                margin: var(--spacing-lg) var(--spacing-sm);
+            }
+
+            .error-card {
+                margin: var(--spacing-md) var(--spacing-sm);
+            }
+
+            .footer {
+                padding: var(--spacing-xl) var(--spacing-sm);
+            }
+
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
+            .emoji {
+                font-size: 3.5rem;
+            }
+
+            .emotion-panel,
+            .video-section {
+                padding: var(--spacing-lg);
+            }
+        }
+
+        /* Large screen optimization */
+        @media (min-width: 1400px) {
+            .main-grid {
+                grid-template-columns: 1fr 2fr;
+                padding: var(--spacing-xxl) var(--spacing-xxxl);
+                gap: var(--spacing-xxl);
+            }
+
+            .hero-section {
+                padding: var(--spacing-xxxl) var(--spacing-xxxl) var(--spacing-xxl);
+            }
+
+            .privacy-note {
+                margin: var(--spacing-xl) var(--spacing-xxxl);
+            }
+
+            .error-card {
+                margin: var(--spacing-lg) var(--spacing-xxxl);
+            }
+
+            .footer {
+                padding: var(--spacing-xxl) var(--spacing-xxxl);
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎭 Facial Emotion Detector</h1>
-        <p>AI-powered real-time emotion recognition using your camera</p>
-        
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Loading AI models...</p>
-            <div id="progress" class="progress">Initializing...</div>
+    <div class="app-container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>🎭 Facial Emotion Detector</h1>
+            <p class="subtitle">Experience the future of AI-powered emotion recognition with real-time analysis using your camera</p>
         </div>
-        
+
+        <!-- Loading State -->
+        <div id="loading" class="loading-container">
+            <div class="loading-spinner"></div>
+            <h2 class="loading-title">Loading AI Models</h2>
+            <p class="loading-subtitle" id="progress">Initializing neural networks...</p>
+        </div>
+
+        <!-- Main Application -->
         <div id="main-content" style="display: none;">
-            <div class="emoji" id="emoji">😐</div>
-            <div class="status">You look <span id="emotion-text">neutral</span>!</div>
-            <div style="font-size: 12px; opacity: 0.7; margin: 5px 0;">
-                ⚡ Real-time emotion detection | 📹 Camera refreshing every 5 seconds
-            </div>
-            
-            <!-- Debug panel to show real-time emotions -->
-            <div class="debug-panel">
-                <div style="margin-bottom: 5px;"><strong>Real-time Emotions:</strong></div>
-                <div id="emotion-values">Waiting for face detection...</div>
-                <div style="margin-top: 5px;">
-                    <strong>Try making exaggerated expressions!</strong><br>
-                    😀 Big smile | 😢 Frown deeply | 😠 Furrow brow | 😲 Open mouth wide
+            <div class="main-grid">
+                <!-- Emotion Display Panel -->
+                <div class="emotion-panel">
+                    <div class="live-indicator">
+                        <div class="live-dot"></div>
+                        Live Detection
+                    </div>
+
+                    <div class="emoji-display">
+                        <div class="emoji" id="emoji">😐</div>
+                        <div class="status-text">You look <span id="emotion-text">neutral</span></div>
+                        <p class="status-subtitle">AI is analyzing your facial expressions in real-time</p>
+                    </div>
+
+                    <!-- Debug Panel -->
+                    <div class="debug-panel">
+                        <div class="debug-title">Emotion Analysis</div>
+                        <div class="debug-content">
+                            <div id="emotion-values">Waiting for face detection...</div>
+                        </div>
+                    </div>
+
+                    <!-- Tips Card -->
+                    <div class="tips-card">
+                        <div class="tips-title">Tips for Best Results</div>
+                        <div class="tips-content">
+                            Make exaggerated expressions and hold them for 2-3 seconds:<br>
+                            😀 Big smile • 😢 Deep frown • 😠 Furrow brow • 😲 Open mouth wide
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Section -->
+                <div class="video-section">
+                    <div class="video-header">
+                        <h2>Live Camera Feed</h2>
+                    </div>
+
+                    <div class="video-container">
+                        <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                        <canvas id="canvas"></canvas>
+                    </div>
+
+                    <div style="padding: var(--spacing-xl); text-align: center;">
+                        <button id="start-camera" class="btn-primary" onclick="startCamera()">
+                            📷 Start Camera
+                        </button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="video-container">
-                <div class="browser-chrome">
-                    <div class="browser-actions"></div>
-                </div>
-                <video id="video" width="640" height="480" autoplay muted playsinline></video>
-                <canvas id="canvas"></canvas>
+
+            <!-- Error Display -->
+            <div id="error" class="error-card" style="display: none;">
+                <div class="error-title">Something went wrong</div>
+                <div class="error-message" id="error-message"></div>
             </div>
-            
-            <button id="start-camera" onclick="startCamera()">Start Camera</button>
-            
-            <div id="error" class="error" style="display: none;"></div>
-            
-            <p class="note">
-                🔒 Privacy-first: You are not being recorded - all processing happens locally in your browser!
-            </p>
-            
-            <div class="footer">
-                <p>Built with Face-API.js and TensorFlow.js</p>
-                <p>Detects: Happy, Sad, Angry, Fearful, Disgusted, Surprised, Neutral</p>
+
+            <!-- Privacy Note -->
+            <div class="privacy-note">
+                <div class="icon">🔒</div>
+                <div class="title">Privacy First</div>
+                <p class="description">Your video never leaves your device. All AI processing happens locally in your browser for complete privacy and security.</p>
             </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-title">Built with Face-API.js and TensorFlow.js</div>
+            <p class="footer-description">Detects seven emotions: Happy, Sad, Angry, Fearful, Disgusted, Surprised, and Neutral</p>
         </div>
     </div>
 
@@ -251,7 +653,6 @@
 
         let modelsLoaded = false;
         let detectionInterval = null;
-        let refreshInterval = null;
         let currentEmotion = 'neutral';
         let emotionHistory = [];
         let lastUpdateTime = Date.now();
@@ -310,11 +711,11 @@
                 });
                 
                 video.srcObject = stream;
-                console.log('Camera stream started/refreshed');
+                console.log('Camera stream started');
                 
             } catch (error) {
-                console.error('Error refreshing camera:', error);
-                showError('Camera refresh failed. Continuing with current stream.');
+                console.error('Error starting camera:', error);
+                showError('Camera failed to start.');
             }
         }
 
@@ -329,13 +730,26 @@
                 
                 video.addEventListener('play', () => {
                     const canvas = document.getElementById('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    
+
+                    // Function to resize canvas to match displayed video dimensions
+                    const resizeCanvas = () => {
+                        const rect = video.getBoundingClientRect();
+                        canvas.width = rect.width;
+                        canvas.height = rect.height;
+                        canvas.style.width = rect.width + 'px';
+                        canvas.style.height = rect.height + 'px';
+                    };
+
+                    // Initial resize
+                    resizeCanvas();
+
+                    // Resize canvas when window is resized
+                    window.addEventListener('resize', resizeCanvas);
+
                     startDetection();
                 });
                 
-                console.log('Camera started with auto-refresh enabled');
+                console.log('Camera started successfully');
                 
             } catch (error) {
                 console.error('Error accessing camera:', error);
@@ -347,39 +761,16 @@
             if (detectionInterval) {
                 clearInterval(detectionInterval);
             }
-            
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-            }
-            
+
             // Continuous detection every 100ms for smooth real-time feedback
             detectionInterval = setInterval(async () => {
                 await detectEmotions();
             }, 100);
-            
-            // Auto-refresh every 5 seconds to keep recording fresh
-            refreshInterval = setInterval(() => {
-                refreshCamera();
-            }, 5000);
-            
-            console.log('Started continuous detection and 5-second refresh cycle');
+
+            console.log('Started continuous emotion detection');
         }
 
-        function refreshCamera() {
-            const video = document.getElementById('video');
-            if (video && video.srcObject) {
-                console.log('Refreshing camera stream...');
-                
-                // Stop current stream
-                const tracks = video.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                
-                // Restart camera
-                setTimeout(() => {
-                    startCameraStream();
-                }, 100);
-            }
-        }
+
 
         async function detectEmotions() {
             const video = document.getElementById('video');
@@ -395,14 +786,18 @@
                     }))
                     .withFaceExpressions();
 
-                const displaySize = { width: video.videoWidth, height: video.videoHeight };
+                // Get the displayed video dimensions for proper scaling
+                const rect = video.getBoundingClientRect();
+                const displaySize = { width: rect.width, height: rect.height };
+
+                // Use faceapi's built-in resizing which handles scaling properly
                 const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                
+
                 // Clear canvas
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Draw detections
+
+                // Draw detections with proper scaling
                 faceapi.draw.drawDetections(canvas, resizedDetections);
                 faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
@@ -544,7 +939,12 @@
 
         function showError(message) {
             const errorDiv = document.getElementById('error');
-            errorDiv.textContent = message;
+            const errorMessage = document.getElementById('error-message');
+            if (errorMessage) {
+                errorMessage.textContent = message;
+            } else {
+                errorDiv.innerHTML = `<div class="error-title">Something went wrong</div><div class="error-message">${message}</div>`;
+            }
             errorDiv.style.display = 'block';
         }
 
