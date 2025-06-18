@@ -981,7 +981,10 @@
         // AI Art Generation variables
         let isGeneratingArt = false;
         let lastGeneratedEmotion = null;
-        let apiBaseUrl = 'http://localhost:3001/api';
+        // Auto-detect API URL based on environment
+        let apiBaseUrl = window.location.hostname === 'localhost' ?
+            'http://localhost:3001/api' :
+            `${window.location.origin}/api`; // Uses Vercel serverless functions
         let generationCooldown = 5000; // 5 seconds between generations
 
         // Prompt tracking for each emotion
