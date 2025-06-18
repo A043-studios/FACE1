@@ -3,32 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎭 Facial Emotion Detector</title>
+    <title>Facial Emotion Detector</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
-        /* Apple-inspired design system */
+        /* Dark Professional Design System */
         :root {
-            /* Apple's signature colors */
-            --apple-blue: #007AFF;
-            --apple-blue-dark: #0056CC;
-            --apple-gray: #8E8E93;
-            --apple-gray-light: #F2F2F7;
-            --apple-gray-dark: #1C1C1E;
-            --apple-green: #34C759;
-            --apple-orange: #FF9500;
-            --apple-red: #FF3B30;
-            --apple-purple: #AF52DE;
+            /* Dark theme colors inspired by the reference */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #3a3a3a;
 
-            /* Apple's neutral palette */
-            --background: #FFFFFF;
-            --background-secondary: #F2F2F7;
-            --surface: #FFFFFF;
-            --text-primary: #000000;
-            --text-secondary: #8E8E93;
-            --text-tertiary: #C7C7CC;
-            --separator: #C6C6C8;
+            /* Surface colors */
+            --surface-primary: #2d2d2d;
+            --surface-secondary: #353535;
+            --surface-elevated: #404040;
 
-            /* Apple's spacing system */
+            /* Accent colors */
+            --accent-blue: #4A9EFF;
+            --accent-green: #4AFF88;
+            --accent-orange: #FF8A4A;
+            --accent-red: #FF4A4A;
+            --accent-purple: #8A4AFF;
+
+            /* Legacy color mappings for compatibility */
+            --apple-blue: #4A9EFF;
+            --apple-blue-dark: #3A8EEF;
+            --apple-green: #4AFF88;
+            --apple-orange: #FF8A4A;
+            --apple-red: #FF4A4A;
+            --apple-purple: #8A4AFF;
+
+            /* Glass effect colors */
+            --glass-bg: rgba(45, 45, 45, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: rgba(0, 0, 0, 0.3);
+
+            /* Background */
+            --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+            --surface-glass: rgba(45, 45, 45, 0.8);
+            --surface-glass-hover: rgba(53, 53, 53, 0.8);
+
+            /* Text colors optimized for dark theme */
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --text-tertiary: #808080;
+            --text-muted: #606060;
+            --separator: rgba(255, 255, 255, 0.1);
+
+            /* Spacing system */
             --spacing-xs: 4px;
             --spacing-sm: 8px;
             --spacing-md: 16px;
@@ -37,17 +59,21 @@
             --spacing-xxl: 48px;
             --spacing-xxxl: 64px;
 
-            /* Apple's border radius */
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-            --radius-xl: 20px;
+            /* Border radius - minimal */
+            --radius-sm: 2px;
+            --radius-md: 4px;
+            --radius-lg: 6px;
+            --radius-xl: 8px;
 
-            /* Apple's shadows */
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+            /* Minimal shadows */
+            --shadow-glass: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-glass-lg: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+            /* Legacy shadow mappings */
+            --shadow-sm: var(--shadow-glass);
+            --shadow-md: var(--shadow-glass);
+            --shadow-lg: var(--shadow-glass-lg);
+            --shadow-xl: var(--shadow-glass-lg);
         }
 
         * {
@@ -57,67 +83,99 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 0;
-            background: var(--background);
+            background: var(--bg-gradient);
             min-height: 100vh;
             color: var(--text-primary);
-            line-height: 1.47059;
-            font-size: 17px;
+            line-height: 1.5;
+            font-size: 14px;
             font-weight: 400;
+            position: relative;
+            letter-spacing: -0.01em;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-gradient);
+            z-index: -1;
         }
 
         .app-container {
             width: 100%;
             min-height: 100vh;
             padding: 0;
+            position: relative;
         }
 
-        .hero-section {
-            text-align: center;
-            padding: var(--spacing-xxxl) var(--spacing-xl) var(--spacing-xxl);
-            background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 100%);
-            width: 100%;
-        }
 
-        .hero-section h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0 0 var(--spacing-md) 0;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-        }
-
-        .hero-section .subtitle {
-            font-size: 1.25rem;
-            font-weight: 400;
-            color: var(--text-secondary);
-            margin: 0 0 var(--spacing-xl) 0;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: var(--spacing-xl);
-            padding: var(--spacing-xxl) var(--spacing-xl);
-            align-items: start;
+            grid-template-columns: 1fr 2fr;
+            grid-template-rows: 1fr;
+            gap: var(--spacing-lg);
+            padding: var(--spacing-lg);
+            align-items: stretch;
             width: 100%;
-            max-width: none;
+            min-height: calc(100vh - 100px);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Column Layout */
+        .info-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            height: 100%;
+        }
+
+        .content-column {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            height: 100%;
+        }
+
+        /* Panel Header */
+        .panel-header {
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--separator);
+        }
+
+        .panel-header h1 {
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-sm) 0;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .panel-header .subtitle {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.4;
         }
 
         .emotion-panel {
-            background: var(--surface);
-            border-radius: var(--radius-xl);
-            padding: var(--spacing-xl);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--separator);
-            position: sticky;
-            top: var(--spacing-lg);
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border);
         }
 
         .emoji-display {
@@ -126,41 +184,41 @@
         }
 
         .emoji {
-            font-size: 6rem;
-            margin: var(--spacing-lg) 0;
+            font-size: 4rem;
+            margin: var(--spacing-md) 0;
             display: block;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+            transition: all 0.2s ease;
         }
 
         .status-text {
-            font-size: 1.75rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 500;
             color: var(--text-primary);
-            margin: var(--spacing-md) 0;
+            margin: var(--spacing-sm) 0;
             letter-spacing: -0.01em;
         }
 
         .status-subtitle {
-            font-size: 1rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             font-weight: 400;
-            margin-bottom: var(--spacing-xl);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.4;
         }
 
         .live-indicator {
             display: inline-flex;
             align-items: center;
             gap: var(--spacing-xs);
-            background: var(--apple-green);
-            color: white;
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
+            background: var(--accent-green);
+            color: var(--bg-primary);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 0.7rem;
+            font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
         }
 
         .live-dot {
@@ -168,48 +226,53 @@
             height: 6px;
             background: white;
             border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.2); }
         }
 
         .video-section {
-            background: var(--surface);
-            border-radius: var(--radius-xl);
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--separator);
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
 
         .video-header {
-            background: var(--text-primary);
-            color: white;
-            padding: var(--spacing-lg);
+            background: var(--surface-secondary);
+            color: var(--text-primary);
+            padding: var(--spacing-md);
             text-align: center;
+            border-bottom: 1px solid var(--separator);
         }
 
         .video-header h2 {
             margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 500;
             letter-spacing: -0.01em;
         }
 
         .video-container {
             position: relative;
             background: #000;
-            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
             overflow: hidden;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         video {
             display: block;
             width: 100%;
-            height: auto;
-            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
         }
 
         canvas {
@@ -217,46 +280,87 @@
             top: 0;
             left: 0;
             pointer-events: none;
-            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
         .debug-panel {
-            background: var(--background-secondary);
+            background: var(--surface-secondary);
             border-radius: var(--radius-md);
-            padding: var(--spacing-lg);
-            margin: var(--spacing-xl) 0;
+            padding: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
             border: 1px solid var(--separator);
         }
 
         .debug-title {
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 500;
             color: var(--text-primary);
-            margin: 0 0 var(--spacing-md) 0;
+            margin: 0 0 var(--spacing-sm) 0;
             letter-spacing: -0.01em;
         }
 
         .debug-content {
             font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--text-secondary);
-            line-height: 1.5;
-            background: var(--surface);
-            padding: var(--spacing-md);
+            line-height: 1.4;
+            background: var(--bg-secondary);
+            padding: var(--spacing-sm);
             border-radius: var(--radius-sm);
             border: 1px solid var(--separator);
         }
 
+        /* Prompt Panel */
+        .prompt-panel {
+            background: var(--surface-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin: var(--spacing-lg) 0;
+            border: 1px solid var(--separator);
+        }
+
+        .prompt-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-sm) 0;
+            letter-spacing: -0.01em;
+        }
+
+        .prompt-content .emotion-tag {
+            display: inline-block;
+            background: var(--accent-blue);
+            color: white;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .prompt-content .prompt-preview {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin: 0;
+            font-style: italic;
+        }
+
         .tips-card {
-            background: var(--surface);
+            background: rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: var(--radius-md);
             padding: var(--spacing-lg);
             margin-top: var(--spacing-lg);
-            border: 1px solid var(--separator);
+            border: 1px solid var(--glass-border);
             border-left: 4px solid var(--apple-blue);
+            box-shadow: var(--shadow-glass);
         }
 
         .tips-title {
@@ -272,35 +376,184 @@
             line-height: 1.5;
         }
 
-        .btn-primary {
+        /* AI Art Overlay Styles */
+        .ai-art-overlay {
+            position: absolute;
+            bottom: var(--spacing-md);
+            right: var(--spacing-md);
+            width: 300px;
+            max-width: 40%;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-md);
+            box-shadow: var(--shadow-glass);
+            border: 1px solid var(--glass-border);
+            z-index: 10;
+        }
+
+        .ai-art-overlay .ai-art-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .ai-art-overlay .ai-art-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .ai-art-overlay .ai-art-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            background: var(--accent-purple);
+            color: white;
+            padding: 3px 6px;
+            border-radius: var(--radius-sm);
+            font-size: 0.65rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .ai-art-overlay .ai-art-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-sm);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .ai-art-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-lg);
+            transition: opacity 0.3s ease;
+        }
+
+        .ai-art-overlay .ai-art-placeholder {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: var(--spacing-md);
+        }
+
+        .ai-art-overlay .ai-art-placeholder .title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 var(--spacing-xs) 0;
+        }
+
+        .ai-art-overlay .ai-art-placeholder .description {
+            font-size: 0.75rem;
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .ai-art-loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+        }
+
+        .ai-art-loading .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--text-tertiary);
+            border-top: 3px solid var(--apple-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .ai-art-loading .text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .ai-art-info {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-glass);
+        }
+
+        .ai-art-info .emotion-tag {
+            display: inline-block;
             background: var(--apple-blue);
             color: white;
-            border: none;
-            padding: var(--spacing-md) var(--spacing-xl);
-            font-size: 1.0625rem;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 600;
-            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .ai-art-info .prompt-preview {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm) var(--spacing-lg);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: var(--radius-md);
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: var(--spacing-sm);
             text-decoration: none;
-            min-width: 160px;
+            min-width: 140px;
             letter-spacing: -0.01em;
-            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.3);
+            box-shadow: var(--shadow-glass);
+            border: 1px solid transparent;
         }
 
         .btn-primary:hover {
             background: var(--apple-blue-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+            transform: translateY(-1px);
         }
 
         .btn-primary:active {
             transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
 
         .btn-primary:disabled {
@@ -316,10 +569,12 @@
             justify-content: center;
             flex-direction: column;
             padding: var(--spacing-xxxl);
-            background: var(--surface);
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--separator);
+            box-shadow: var(--shadow-glass-lg);
+            border: 1px solid var(--glass-border);
             text-align: center;
         }
 
@@ -354,12 +609,15 @@
         }
 
         .error-card {
-            background: var(--surface);
-            border: 1px solid var(--apple-red);
+            background: rgba(239, 68, 68, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
             border-left: 4px solid var(--apple-red);
             border-radius: var(--radius-md);
             padding: var(--spacing-lg);
             margin: var(--spacing-lg) 0;
+            box-shadow: var(--shadow-glass);
         }
 
         .error-title {
@@ -377,12 +635,15 @@
         }
 
         .privacy-note {
-            background: var(--background-secondary);
+            background: rgba(16, 185, 129, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: var(--radius-md);
             padding: var(--spacing-lg);
             margin: var(--spacing-xl) var(--spacing-xl);
             text-align: center;
-            border: 1px solid var(--separator);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            box-shadow: var(--shadow-glass);
         }
 
         .error-card {
@@ -430,23 +691,44 @@
             line-height: 1.5;
         }
 
-        /* Responsive design for full width */
-        @media (max-width: 1200px) {
-            .main-grid {
-                grid-template-columns: 1fr 1.2fr;
-                padding: var(--spacing-xl) var(--spacing-lg);
-            }
-        }
-
+        /* Responsive design */
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
-                gap: var(--spacing-lg);
-                padding: var(--spacing-lg);
+                gap: var(--spacing-md);
+                padding: var(--spacing-md);
             }
 
-            .emotion-panel {
-                position: static;
+            .info-column {
+                order: 2;
+            }
+
+            .content-column {
+                order: 1;
+            }
+
+            .ai-art-overlay {
+                width: 250px;
+                max-width: 35%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                padding: var(--spacing-sm);
+                gap: var(--spacing-sm);
+            }
+
+            .panel-header {
+                margin-bottom: var(--spacing-md);
+                padding-bottom: var(--spacing-sm);
+            }
+
+            .ai-art-overlay {
+                width: 200px;
+                max-width: 45%;
+                bottom: var(--spacing-sm);
+                right: var(--spacing-sm);
             }
         }
 
@@ -525,7 +807,7 @@
         }
 
         /* Large screen optimization */
-        @media (min-width: 1400px) {
+        @media (min-width: 1600px) {
             .main-grid {
                 grid-template-columns: 1fr 2fr;
                 padding: var(--spacing-xxl) var(--spacing-xxxl);
@@ -552,11 +834,7 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <h1>🎭 Facial Emotion Detector</h1>
-            <p class="subtitle">Experience the future of AI-powered emotion recognition with real-time analysis using your camera</p>
-        </div>
+
 
         <!-- Loading State -->
         <div id="loading" class="loading-container">
@@ -568,52 +846,95 @@
         <!-- Main Application -->
         <div id="main-content" style="display: none;">
             <div class="main-grid">
-                <!-- Emotion Display Panel -->
-                <div class="emotion-panel">
-                    <div class="live-indicator">
-                        <div class="live-dot"></div>
-                        Live Detection
-                    </div>
-
-                    <div class="emoji-display">
-                        <div class="emoji" id="emoji">😐</div>
-                        <div class="status-text">You look <span id="emotion-text">neutral</span></div>
-                        <p class="status-subtitle">AI is analyzing your facial expressions in real-time</p>
-                    </div>
-
-                    <!-- Debug Panel -->
-                    <div class="debug-panel">
-                        <div class="debug-title">Emotion Analysis</div>
-                        <div class="debug-content">
-                            <div id="emotion-values">Waiting for face detection...</div>
+                <!-- Left Column: Info Panel (33%) -->
+                <div class="info-column">
+                    <!-- Emotion Display Panel -->
+                    <div class="emotion-panel">
+                        <div class="panel-header">
+                            <h1>Facial Emotion Detector</h1>
+                            <p class="subtitle">Experience the future of AI-powered emotion recognition with real-time analysis using your camera</p>
                         </div>
-                    </div>
 
-                    <!-- Tips Card -->
-                    <div class="tips-card">
-                        <div class="tips-title">Tips for Best Results</div>
-                        <div class="tips-content">
-                            Make exaggerated expressions and hold them for 2-3 seconds:<br>
-                            😀 Big smile • 😢 Deep frown • 😠 Furrow brow • 😲 Open mouth wide
+                        <div class="live-indicator">
+                            <div class="live-dot"></div>
+                            Live Detection
+                        </div>
+
+                        <div class="emoji-display">
+                            <div class="emoji" id="emoji">😐</div>
+                            <div class="status-text">You look <span id="emotion-text">neutral</span></div>
+                            <p class="status-subtitle">AI is analyzing your facial expressions in real-time</p>
+                        </div>
+
+                        <!-- Debug Panel -->
+                        <div class="debug-panel">
+                            <div class="debug-title">Emotion Analysis</div>
+                            <div class="debug-content">
+                                <div id="emotion-values">Waiting for face detection...</div>
+                            </div>
+                        </div>
+
+                        <!-- AI Prompt Preview -->
+                        <div class="prompt-panel" id="prompt-panel">
+                            <div class="prompt-title">AI Art Prompt</div>
+                            <div class="prompt-content">
+                                <div class="emotion-tag" id="current-emotion-tag">Neutral</div>
+                                <p class="prompt-preview" id="prompt-preview">Waiting for emotion detection...</p>
+                            </div>
+                        </div>
+
+                        <!-- Tips Card -->
+                        <div class="tips-card">
+                            <div class="tips-title">Tips for Best Results</div>
+                            <div class="tips-content">
+                                Make exaggerated expressions and hold them for 2-3 seconds:<br>
+                                😀 Big smile • 😢 Deep frown • 😠 Furrow brow • 😲 Open mouth wide
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Video Section -->
-                <div class="video-section">
-                    <div class="video-header">
-                        <h2>Live Camera Feed</h2>
-                    </div>
+                <!-- Right Column: Camera Feed (66%) -->
+                <div class="content-column">
+                    <!-- Video Section -->
+                    <div class="video-section">
+                        <div class="video-header">
+                            <h2>Live Camera Feed</h2>
+                        </div>
 
-                    <div class="video-container">
-                        <video id="video" width="640" height="480" autoplay muted playsinline></video>
-                        <canvas id="canvas"></canvas>
-                    </div>
+                        <div class="video-container">
+                            <video id="video" width="640" height="480" autoplay muted playsinline></video>
+                            <canvas id="canvas"></canvas>
 
-                    <div style="padding: var(--spacing-xl); text-align: center;">
-                        <button id="start-camera" class="btn-primary" onclick="startCamera()">
-                            📷 Start Camera
-                        </button>
+                            <!-- AI Art Panel - Overlaid in bottom right -->
+                            <div class="ai-art-overlay">
+                                <div class="ai-art-header">
+                                    <h3 class="ai-art-title">AI Art Generation</h3>
+                                    <div class="ai-art-indicator" id="ai-status">
+                                        <div class="live-dot"></div>
+                                        Ready
+                                    </div>
+                                </div>
+
+                                <div class="ai-art-container" id="ai-art-container">
+                                    <div class="ai-art-placeholder" id="ai-placeholder">
+                                        <div class="title">Emotion-Based Art</div>
+                                        <p class="description">AI will generate beautiful artwork based on your detected emotions. Start the camera to begin!</p>
+                                    </div>
+                                    <img id="ai-art-image" class="ai-art-image" style="display: none;" alt="AI Generated Art">
+                                    <div class="ai-art-loading" id="ai-loading" style="display: none;">
+                                        <div class="spinner"></div>
+                                        <div class="text">Generating art...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="padding: var(--spacing-lg); text-align: center;">
+                            <button id="start-camera" class="btn-primary" onclick="startCamera()">
+                                📷 Start Camera
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -657,8 +978,214 @@
         let emotionHistory = [];
         let lastUpdateTime = Date.now();
 
+        // AI Art Generation variables
+        let isGeneratingArt = false;
+        let lastGeneratedEmotion = null;
+        // Try deployed API first, fallback to localhost for development
+        let apiBaseUrl = window.location.hostname === 'localhost' ?
+            'http://localhost:3001/api' :
+            'https://your-deployed-api.herokuapp.com/api'; // Replace with your deployed API URL
+        let generationCooldown = 5000; // 5 seconds between generations
+
+        // Prompt tracking for each emotion
+        let usedPrompts = {
+            happy: [],
+            neutral: [],
+            sad: [],
+            angry: [],
+            fearful: [],
+            disgusted: [],
+            surprised: []
+        };
+
+        // Emotion-specific prompts (20 per emotion)
+        const emotionPrompts = {
+            happy: [
+                "Joyful humanoid robot standing in a sunlit flower field — white glossy armor gleaming in the sunlight — one hand mid-wave with soft motion blur — surrounded by wildflowers in bloom — bright blue sky with fluffy clouds — warm and optimistic tone — 16:9",
+                "Smiling robot with glowing eyes and rounded features — skipping through a field of daisies, motion blur on one foot — golden-hour lighting — sun rays filtering through petals — playful and serene future-nature fusion — 16:9",
+                "Happy robot with curved chrome limbs dancing gently in a meadow of sunflowers — subtle motion blur on arms — butterflies fluttering in the background — cinematic soft-focus lens — pastel tones and peaceful mood — 16:9",
+                "Friendly robot with a ceramic finish and gold details, sitting in a patch of poppies — head tilted slightly with expressive glow — hand raised in a blurred gesture of joy — colorful floral field stretching into the distance — ambient golden lighting — 16:9",
+                "Single humanoid robot spinning playfully in a field of lavender — arms extended, motion blur showing movement — warm breeze, flowers swaying — bright, dreamy sky above — joyful organic-mechanical harmony — 16:9",
+                "White-armored robot with floral crown, walking slowly through tall wildflowers — slight motion blur in limbs — vibrant colors, butterflies, birds in the background — soft cinematic sunlight and nature's harmony — 16:9",
+                "Expressive robot kneeling in a flower field, inspecting a single glowing bloom — one arm blurred from reaching out — colorful meadow under radiant afternoon light — tranquil, gentle futuristic vision — 16:9",
+                "Cheerful robot with an LED faceplate showing smiling eyes — running joyfully through tulips, motion blur behind — trails of petals caught mid-air — lush, bright, immersive landscape — 16:9",
+                "Solo robot with a mirrored visor reflecting fields of flowers — mid-jump with light motion blur — vibrant spring palette, rolling hills of blossoms in the background — playful and poetic AI in nature — 16:9",
+                "Warmly lit robot with golden joints lying in a field of mixed wildflowers — arm raised with motion blur, waving at the sky — serene floral horizon — peaceful, childlike wonder meets future tech — 16:9",
+                "Delighted humanoid robot twirling gently in a vast field of yellow buttercups — arms outstretched with trailing motion blur — sunset glow wrapping the landscape — petals drifting in mid-air — joyful and poetic scene — 16:9",
+                "Happy robot with soft-rounded features walking barefoot-style through tall grass and wildflowers — hand brushing the blossoms with light motion blur — glowing forest edge in the distance — uplifting and cinematic — 16:9",
+                "Cheerful robot with blue-tinted visor sitting under a blossoming tree in a flower field — waving with a slightly blurred arm — sunlight sparkling through leaves — peaceful, heartwarming scene — 16:9",
+                "Robot with heart-shaped LED display bouncing lightly in a pink flower meadow — motion blur on lower limbs and falling blossoms — soft clouds above, lens flare glints — playful nature-tech harmony — 16:9",
+                "Smiling AI figure skipping through rows of orange marigolds — blurred motion in raised knee and outstretched hand — radiant golden-hour sun casting long shadows — bright and spirited — 16:9",
+                "Curious robot surrounded by blooming cosmos flowers — gently spinning in place with motion-blurred arms — sun-dappled field with insects and light breeze — vibrant and serene mood — 16:9",
+                "Playful robot holding a bouquet of wildflowers, caught mid-jump — trailing motion blur behind legs — lush countryside horizon — cheerful, youthful energy — sunlit and cinematic — 16:9",
+                "Robot with metallic freckles and expressive eyes lying on its back in a violet flower field — slowly raising one hand with blur trail — dreamy sky with birds flying above — tranquil joy — 16:9",
+                "Dancing robot in a daisy-covered clearing — motion blur on hips and feet to suggest rhythm — nature surrounds with soft fog at sunrise — harmonic fusion of innocence and tech — 16:9",
+                "Happy robot gently tossing flower petals into the air — soft motion blur as petals float and arms move — surrounded by lush blooms, clear sky, and glowing morning light — whimsical and cinematic — 16:9"
+            ],
+            neutral: [
+                "Single humanoid robot in glossy white armor with gold neck accents — subtle motion blur in one extended arm — cinematic spotlight from above — black background with minimal reflections — futuristic, clean design — 16:9",
+                "One sleek robot with reflective obsidian visor and asymmetrical shoulder plating — arm slightly blurred mid-gesture — foggy sci-fi backdrop with rim light — ultra-polished surfaces — moody cinematic feel — 16:9",
+                "Futuristic robot with dark chrome chest panel and matte helmet — turning slightly, with motion blur trailing behind — strong key light from upper left — background fading into soft tech shadows — 16:9",
+                "Solitary robot with exposed joint mechanics and illuminated torso — walking forward with legs in motion blur — ambient glow and scattered particles — high realism and sci-fi depth — 16:9",
+                "Front-facing humanoid robot with narrow facial plate and fine surface scratches — motion blur around shoulder as if just moved — soft industrial lighting — isolated tech stage — 16:9",
+                "Single robot with gold-trimmed helmet and layered chest plating — half body caught in motion blur suggesting a swift turn — glossy floor reflections — deep space ambiance — 16:9",
+                "Robot in high-gloss ceramic armor with segmented limbs — light motion blur on one side, simulating shift in stance — focused spotlight beam — tech cave background — cinematic vibe — 16:9",
+                "Lone AI sentinel with monochrome design, intricate spine structure visible — motion blur from rising arm — dramatic low angle view — dust particles in ambient backlight — 16:9",
+                "Humanoid robot in matte white finish with asymmetric visor design — slight motion blur across lower body, mid-step — soft gradient background with tech haze — elegant sci-fi aesthetic — 16:9",
+                "Heroic robot in bold stance, front-lit with subtle warm tones — head tilt causing slight blur effect — high-detail joints and chest plating — isolated on dark moody backdrop — 16:9",
+                "Minimalist humanoid robot in brushed steel finish — one arm extended, fingertips slightly motion blurred — soft spotlight illuminating reflective surfaces — dark void background with subtle tech glows — 16:9",
+                "Single robot with matte black exoskeleton and luminous core — torso twist creating a gentle motion blur — floating ambient particles — low ambient light with directional top lighting — sci-fi tech noir style — 16:9",
+                "Futuristic android with geometric plating and no visible face — motion blur around knees as if shifting weight — background of smoky volumetric light beams — crisp edge lighting and atmospheric depth — 16:9",
+                "Single AI unit with modular chest design and amber accent lights — captured mid-step with blurred foot trailing — metallic industrial setting with haze and reflections — moody futuristic minimalism — 16:9",
+                "Angular robot design with sculpted armor plates and vented shoulder joints — left arm blurred while raising — background of subtle backlight silhouettes — stark, minimal color palette — 16:9",
+                "Solitary bipedal robot with sharp jawline and brushed titanium finish — turning head with motion blur sweep — dark environment with only floor reflections and narrow beam illumination — quiet, precise energy — 16:9",
+                "Robot with a neutral posture, mid-walk in low gravity — soft motion blur across hips and hands — dimly lit corridor with glowing data lines — quiet anticipation and weightless futurism — 16:9",
+                "Clean humanoid robot with segmented plating and internal light veins — motion blur around wrist as it rotates — studio-lit with a cold color temperature — black background with faint lens flares — 16:9",
+                "Neutral stance robot with hexagonal limb details and a non-reflective matte surface — barely visible motion blur in subtle micro-adjustment pose — volumetric light shafts cutting through darkness — minimalistic elegance — 16:9",
+                "AI unit with wide shoulder frame and illuminated helmet visor — captured just after a pivot turn with blurred limb edges — crisp lighting from the left — cold, atmospheric backdrop with engineered serenity — 16:9"
+            ],
+            sad: [
+                "Lonely humanoid robot in matte grey armor, standing motionless in heavy rain — droplets trailing down smooth plating — blue hour lighting — soft motion blur in falling rain — moody urban background — 16:9",
+                "Sad robot with dimly lit visor, shoulders slumped — cold rain pouring over a reflective chest plate — dark alley with neon reflections on wet ground — emotional silence — 16:9",
+                "Single robot in a long raincoat-style exterior shell — slow motion blur as rain slides off — surrounded by puddles in a dystopian street — blue-purple color grading — 16:9",
+                "Broken-looking robot under a flickering streetlamp in the rain — water pooling at its feet — soft motion blur from distant cars — rainy cityscape backdrop — deep, cinematic sadness — 16:9",
+                "Weathered humanoid robot standing still in a stormy field — rivulets of rain cascading down its faceplate — arms loose by its side — grayscale scene with faint warm backlight — 16:9",
+                "Melancholy robot looking downward, motion blur in streaming rain around — reflective armor dulled by water — soft spotlight overhead — muted reflections in puddles — 16:9",
+                "Single robot under a collapsed structure in the rain — flickering internal lights — streaks of rain catching environmental light — sadness in stillness — worn-down futuristic vibe — 16:9",
+                "Chrome-faced robot turned slightly away, rain streaming across reflective surface — overcast lighting — long shadows and light motion blur in raindrops — atmosphere heavy with isolation — 16:9",
+                "Abandoned service robot standing at the edge of a flooded sidewalk — one leg partially submerged — motion blur in slanted rain — neon sign flickering in background — 16:9",
+                "Silent sentinel-style robot, arms crossed, standing beneath a broken shelter — rain dripping from helmet — moody contrast lighting — cinematic sci-fi noir — 16:9",
+                "Sad robot standing alone on a rooftop in the rain — motion blur in wind-blown droplets — expressionless visor tilted down — minimal lighting and blurred skyline — 16:9",
+                "Single robot framed in a rainy, overgrown landscape — moss-covered joints — standing still as raindrops blur in the foreground — post-apocalyptic sorrow — 16:9",
+                "Robot with glowing blue chest light dimmed — kneeling in the rain with hands resting on thighs — streaks of water obscuring body lines — sorrowful and resigned tone — 16:9",
+                "Old-generation robot slowly rusting in the rain — motion blur on water streams — solitary placement in middle of empty road — dim ambient glow from foggy lights — 16:9",
+                "Futuristic android leaning against a wall in heavy rain — wet surface reflections all around — blurred cars in background — eyes turned off — sense of loss — 16:9",
+                "Slender robot standing with arms by its side on a rain-drenched bridge — motion blur on falling rain and distant vehicles — dramatic key light from behind — cold sadness — 16:9",
+                "Robot alone at an abandoned train platform — flickering screen light on wet plating — rain blurring the scene in long streaks — faded signage behind — 16:9",
+                "Humanoid robot with cracked faceplate under heavy rain — head lowered — backlight silhouettes through mist — glistening water trails — silent sorrow — 16:9",
+                "Damaged robot holding a wilted flower in the rain — petals falling in motion blur — puddle reflections mirror lonely stance — late-night lighting — 16:9",
+                "Solitary robot in a storm, lightning briefly illuminating figure — heavy rain obscuring lower body — emotion in frozen pose — deep blue and grey palette — 16:9"
+            ],
+            angry: [
+                "Angry humanoid robot with glowing red eyes and clenched fists — sparks flying from shoulder joints — dark industrial tunnel with flickering lights — high tension and motion blur in steam bursts — 16:9",
+                "Single combat robot mid-roar with jaw open and red-lit eyes glowing fiercely — power surges arcing from arms — scorched battlefield background — cinematic dust and fire haze — 16:9",
+                "Furious robot with red glowing eyes partially covered by cracked helmet — arm raised with motion blur mid-strike — burning debris in background — heavy metal textures and aggression — 16:9",
+                "Battle-worn robot with clawed hands and molten chest core — standing in a field of crushed metal — eyes blazing red — smoke rising from vents — dark future war tone — 16:9",
+                "Single red-eyed robot surrounded by shattered screens — motion blur as it slams fist into ground — sparks and electrical arcs exploding outward — intense spotlight contrast — 16:9",
+                "Enraged AI sentinel with glowing red optics and extended blade arm — caught mid-swing in motion blur — alarms flashing in background — hostile industrial bunker — 16:9",
+                "Rage-filled robot tearing through a wall — red eyes glowing violently — debris mid-air with strong motion trails — backlit by warning strobes — cinematic destruction — 16:9",
+                "Robotic warrior with smoke venting from its back — fists clenched and red eyes focused forward — stormy sky with thunder flashes — standing in crater — aggressive stance — 16:9",
+                "Single furious robot screaming into the void — face twisted in mechanical tension — motion blur on shaking limbs — molten metal sparks raining down — fire-lit shadows — 16:9",
+                "High-tech soldier robot with cracked armor — red glow from eye sockets pulsing with intensity — weaponized limbs charging with energy — scorched earth setting — 16:9",
+                "Malfunctioning robot with red eyes flickering chaotically — surrounded by broken drone corpses — twitching with motion blur — corrupted system overload aura — 16:9",
+                "One furious robot mid-leap, red eyes glowing like lasers — motion blur on legs and arms — dramatic red-orange explosion behind — battle-ravaged urban backdrop — 16:9",
+                "Raging robot with red eyes and fractured chassis — standing under stormlight, gripping a crushed helmet — angry sparks flickering — industrial rebellion theme — 16:9",
+                "Robot surrounded by shattered holograms and destroyed screens — blazing red eyes and angry chest pulses — body trembling with motion blur — electric tension in the air — 16:9",
+                "Humanoid robot roaring skyward, red visor split open with internal glow — smoke columns rising — crushed weapon in hand — war-torn sci-fi landscape — 16:9",
+                "Furious red-eyed robot dragging itself out of rubble — half body scorched — lightning sparking from joints — blood-red ambient lighting — wrathful and relentless — 16:9",
+                "Single robot staring directly into camera with glowing red eyes — flames reflected in chrome armor — mechanical fists clenched — subtle motion blur in pulsing core — 16:9",
+                "Rage mode engaged: robot with hydraulic limbs and glowing red veins — sprinting forward with motion blur — background on fire — alarm lights flashing — 16:9",
+                "Red-eyed robot smashing through reinforced glass — shards caught in motion blur — internal furnace glowing — tech lab in chaos — cinematic rage explosion — 16:9",
+                "One angry robot atop a pile of broken drones — thunderstorm overhead — red eyes glowing through rain — electricity crackling off limbs — total vengeance energy — 16:9"
+            ],
+            surprised: [
+                "Surprised humanoid robot with wide-open glowing eyes — head tilted back slightly — standing in a glowing cave filled with bioluminescent tech flora — faint motion blur around fingers in reaction — 16:9",
+                "Single robot recoiling in shock, red sensor flickering into alert mode — motion blur in arms pulled back — massive unknown structure revealed in fog — awe meets fear — 16:9",
+                "Futuristic android with translucent plating — facial screen showing \"!\" symbol — caught mid-step with one foot blurred — alien object levitating before it — soft light glow and mystery — 16:9",
+                "Surprised robot in a lab, surrounded by hovering holograms — arms slightly lifted with blur from fast reaction — data overload streaming across its visor — cinematic, glitching light trails — 16:9",
+                "Robot with expressive eyes glowing wide — standing on cliff edge overlooking a massive futuristic city rising from clouds — hands slightly blurred in frozen awe — sunset horizon — 16:9",
+                "Single robot turning sharply with surprised posture — head slightly tilted, shoulder blurred — behind it, a portal glowing open — mist, chaos, and uncertainty — 16:9",
+                "Surprised service robot in a clean white hallway — object floats mid-air, casting glowing light on its face — subtle motion blur in fingers reaching out — sterile, sleek sci-fi space — 16:9",
+                "Small humanoid robot in a marketplace — glowing red balloon unexpectedly floating in front of its face — mechanical eyes widened — motion blur from backward step — surreal and curious — 16:9",
+                "Surprised battle droid emerging into sunlight after years in darkness — overwhelmed by the world beyond — eyes glowing brighter — subtle body tremble and atmospheric dust — 16:9",
+                "Robot discovering an old human artifact — emotion displayed through eye glow pulsing — motion blur from shifting arms — cinematic light shaft falling on object — quiet awe — 16:9",
+                "Surprised robot caught in spotlight during stealth mission — eyes wide in glowing white — background lights activating — slight motion blur as it flinches — tension and alert — 16:9",
+                "Futuristic robot on a bridge suddenly lit up by an approaching unidentified aircraft — glow reflecting on chrome face — moment of shock frozen in body pose — 16:9",
+                "Robot in misty forest stumbles upon its own clone — eyes blinking in red and blue glow — stepping back with motion blur — soft fog, emotional uncertainty — 16:9",
+                "One robot mid-jump reacting to ground collapsing beneath — hands lifted with blurred trails — eyes widened in glowing red panic — collapsing tech environment — 16:9",
+                "Single robot in deep space station reacting to unexpected hologram — visual distortion effects in background — hands slowly raising in motion blur — neon-lit interior — 16:9",
+                "Surprised robot looking into mirror for first time — screen face cycling rapidly — glitch flicker on chrome — motion blur on shoulders — discovery and confusion — 16:9",
+                "Exploration robot uncovering ancient AI monolith — red glow from artifact casting surprised light on its face — motion blur as it leans back — cinematic desert setting — 16:9",
+                "Single robot in spaceship cockpit reacting to malfunction alert — red warning lights flashing — hands frozen on controls, blurred from sudden tension — cinematic cockpit shadows — 16:9",
+                "Surprised robot in jungle ruins, surrounded by glowing alien glyphs — camera angle from below, eyes wide — falling leaves and floating particles in slow motion — discovery and reverence — 16:9",
+                "Futuristic humanoid robot looking up in awe as a massive sky object slowly descends — red light cast over its reflective face — subtle motion blur in rising arm — tone of wonder and fear — 16:9"
+            ],
+            fearful: [
+                "Terrified humanoid robot crouched behind debris, red eyes wide and flickering — subtle tremble blur in hands — giant shadow looming over in fog — hard side lighting and ambient dread — 16:9",
+                "Robot frozen mid-step, staring into darkness with glowing white eyes turned red from terror — shaking arms in motion blur — flickering corridor lights and heavy smoke — absolute tension — 16:9",
+                "Panicked robot running through a narrow tunnel, limbs blurred from frantic movement — red emergency lighting — camera tilt adds unease — distant monstrous form barely visible — 16:9",
+                "Fear-stricken robot in a crumbling lab, shielding its face — body arched backward in terror — glass and sparks flying past in motion blur — high danger cinematic moment — 16:9",
+                "Single robot on its knees, looking up with glowing red pupils trembling — arms slightly raised in pleading stance — behind it, a destructive force of light — pure existential dread — 16:9",
+                "Robot hiding in the shadows of a broken ship — face turned toward flashing red warning beacons — eyes glowing with fear — motion blur in shallow breathing movements — isolation and horror — 16:9",
+                "Paralyzed android standing in water, reflection warped — wide red eyes flickering erratically — unknown creature's silhouette approaching — heavy rain and slow-motion atmosphere — 16:9",
+                "Frightened robot in stasis corridor, backing away — foot dragged in motion blur — sharp top-down light casting long threatening shadows — eerie silence, sheer panic — 16:9",
+                "Robot cornered in a ruined facility — eyes flickering between blue and red in terror — wall behind cracked, something trying to break through — subtle vibration blur — 16:9",
+                "One robot in fetal position, arms wrapped around head — glitching vision effect in background — flashing red lights and haunting echoes — pure mechanical fear — 16:9",
+                "Single robot staring at its own dismembered arm on the ground — breathing vents fluttering with panic — red glow rising around — slow realization of destruction — 16:9",
+                "Fearful humanoid robot hiding behind semi-transparent screen — monstrous silhouette walking by — internal eye glow surging in pulses — motion blur from shaky limbs — 16:9",
+                "Robot in a ruined chamber holding a broken relic — realization dawning in wide flickering eyes — soft blue ambient light turning red — long shadow falling across its face — 16:9",
+                "Terrified robot clutching a wall as environment collapses — eyes scanning frantically — motion blur in breath and fingers — alarms flashing — total desperation — 16:9",
+                "AI unit in panic mode, system HUD overload — screen face flickering static with wide eyes — blurred hand trying to swipe alerts away — enclosed cockpit bursting with tension — 16:9",
+                "Frightened robot dragging itself backward on the ground — overhead threat approaching — red searchlight sweeping over — oil smears and motion blur trail — survival instinct triggered — 16:9",
+                "One trembling robot gripping its own arm, glitching sparks coming from joints — red glowing eyes dimming — haunting silence surrounding — loss, fear, malfunction — 16:9",
+                "Robot backed against a wall, rain pouring — red laser sight dots blinking on its chest — full-body motion blur in panic — emotional freeze-frame — 16:9",
+                "Fear-saturated android mid-sprint through abandoned train platform — full-body blur — red glow of train in distance feels like doom — wind, sound, and velocity — 16:9",
+                "Frozen robot staring directly into camera, eyes flickering wildly — entire background burning or collapsing — blur from minor spasms — helpless, haunted, and afraid — 16:9"
+            ],
+            disgusted: [
+                "Disgusted humanoid robot pulling its head back, hand raised in rejection — flickering red and green reflections on faceplate — leaking organic matter on the floor — motion blur on fingers — sterile lab setting — 16:9",
+                "Single robot turning away from decomposing biotech mass — torso twisted in motion blur — face screen glitching in revulsion — noxious green mist in background — industrial decay — 16:9",
+                "Android stepping back from a broken synthetic organ — expression panel flickering with disgust emojis — red eye glow dimmed — motion blur in backward movement — flickering overhead lights — 16:9",
+                "Robot in pristine white armor covered in splattered biological sludge — hand raised, shaking in blurred motion — twisted steel and wires hanging from ceiling — deep discomfort in posture — 16:9",
+                "Disgusted AI sentinel staring at corrupted data hologram — digital bile flowing across transparent UI — motion blur in swiping hand trying to erase it — cold-blue lighting, glitch sparks — 16:9",
+                "Robot frozen mid-step in a field of twitching biomechanical tentacles — red eyes narrowed — arms pulled back with subtle blur — soft squelching floor texture beneath — 16:9",
+                "Disgusted maintenance bot in a decayed lab, staring at mutated drone corpse — oily black liquid dripping — fast recoil motion blur in limbs — harsh flickering spotlight above — 16:9",
+                "Futuristic robot stepping away from malformed clone — hands raised defensively, fingers flickering — red pupils glowing with rejection — distorted atmospheric haze — 16:9",
+                "Robot watching corrupted memory feed projected in mid-air — internal face LEDs pulsing red in disgust — twitching shoulder with motion blur — wires writhing nearby — 16:9",
+                "Single robot surrounded by rotting mechanical remains — lens flinching with blur — internal fans emitting high-pitched squeal — visible discomfort in body tension — dystopian scrapyard — 16:9",
+                "Disgusted security robot in sewage access tunnel — slimy particles splashing on chestplate — arm raised with motion blur as it wipes faceplate — murky water glowing faint green — 16:9",
+                "Robot holding shattered containment pod with pulsing organic material inside — visible gag in mechanical jaw, blur in head shake — lab alarms faintly flashing — 16:9",
+                "Single android discovering a hybrid organism — data error visible on chest HUD — recoiling with heavy blur — environment warping with reddish-green noise — visceral techno-horror — 16:9",
+                "Robot with one foot sinking into biological sludge — shocked red eye, twisting upper body away — blur in motion from recoil — smoggy toxic waste zone — 16:9",
+                "Futuristic robot caught mid-repulsion gesture — fluids spraying from malfunctioning core nearby — blur in raised hand and shifted hips — disgust reflected in entire frame — 16:9",
+                "Single unit in a morgue-like chamber filled with decomposing AIs — hand over face grille — red eyes dimmed and flickering — motion blur in slow retreat — oppressive silence — 16:9",
+                "Disgusted robot lifting a gooey cable with two fingers — blur in quick throw gesture — fluids trailing in air — strong top-down light on polished floor — intense repulsion — 16:9",
+                "Humanoid robot pressed against a wall, backing away from twitching AI limb — disgust expression in posture — blur in tense hands — unsettling ambient light — horror-tech fusion — 16:9",
+                "Robot in surgical bay pulling away from incomplete synthetic organism — internal heat vents glowing — blur in limbs and glitching facial display — sterile horror tone — 16:9",
+                "AI unit observing a grotesque mutation growing from its own arm — internal lights flickering with error — shaking hand blurred mid-pullback — surreal, medical horror setting — 16:9"
+            ]
+        };
+
         function updateProgress(message) {
             document.getElementById('progress').textContent = message;
+        }
+
+        // Function to get a random unused prompt for an emotion
+        function getRandomPrompt(emotion) {
+            const prompts = emotionPrompts[emotion];
+            if (!prompts || prompts.length === 0) {
+                return `A ${emotion} robot in a beautiful scene with motion blur and cinematic lighting — 16:9`;
+            }
+
+            // Get available prompts (not used yet)
+            const availablePrompts = prompts.filter((prompt, index) => !usedPrompts[emotion].includes(index));
+
+            // If all prompts have been used, reset the used list
+            if (availablePrompts.length === 0) {
+                usedPrompts[emotion] = [];
+                return getRandomPrompt(emotion); // Recursive call with reset list
+            }
+
+            // Get random prompt from available ones
+            const randomIndex = Math.floor(Math.random() * availablePrompts.length);
+            const selectedPrompt = availablePrompts[randomIndex];
+
+            // Find the original index and mark it as used
+            const originalIndex = prompts.indexOf(selectedPrompt);
+            usedPrompts[emotion].push(originalIndex);
+
+            console.log(`Selected prompt ${originalIndex + 1}/20 for ${emotion} emotion`);
+            return selectedPrompt;
         }
 
         async function loadModels() {
@@ -926,15 +1453,168 @@
             const status = statusIcons[emotion] || statusIcons.default;
             document.getElementById('emoji').textContent = status.emoji;
             document.getElementById('emotion-text').textContent = status.name;
-            
+
             // Add visual feedback for updates
             const emojiElement = document.getElementById('emoji');
             emojiElement.style.transform = 'scale(1.2)';
             setTimeout(() => {
                 emojiElement.style.transform = 'scale(1)';
             }, 200);
-            
+
             console.log(`Emotion updated to: ${emotion} at ${new Date().toLocaleTimeString()}`);
+
+            // Trigger AI art generation for significant emotion changes
+            if (emotion !== 'default' && emotion !== lastGeneratedEmotion && !isGeneratingArt) {
+                const confidence = getEmotionConfidence(emotion);
+                if (confidence > 0.3) { // Only generate for confident detections
+                    generateAIArt(emotion, confidence);
+                }
+            }
+        }
+
+        function getEmotionConfidence(targetEmotion) {
+            if (emotionHistory.length === 0) return 0;
+
+            const recentEmotions = emotionHistory.slice(-10);
+            const emotionEntries = recentEmotions.filter(entry => entry.emotion === targetEmotion);
+
+            if (emotionEntries.length === 0) return 0;
+
+            return Math.max(...emotionEntries.map(entry => entry.confidence));
+        }
+
+        async function generateAIArt(emotion, confidence) {
+            if (isGeneratingArt) return;
+
+            isGeneratingArt = true;
+            lastGeneratedEmotion = emotion;
+
+            // Get a random unused prompt for this emotion
+            const selectedPrompt = getRandomPrompt(emotion);
+
+            // Update UI to show loading state
+            updateAIArtStatus('generating', emotion);
+            showAIArtLoading(true);
+
+            // Update prompt preview immediately
+            const promptElement = document.getElementById('prompt-preview');
+            const emotionTag = document.getElementById('current-emotion-tag');
+            if (promptElement && emotionTag) {
+                emotionTag.textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+                promptElement.textContent = selectedPrompt;
+            }
+
+            try {
+                console.log(`Generating AI art for emotion: ${emotion} (confidence: ${confidence})`);
+                console.log(`Using prompt: ${selectedPrompt.substring(0, 100)}...`);
+
+                const response = await fetch(`${apiBaseUrl}/generate-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        emotion: emotion,
+                        confidence: confidence,
+                        prompt: selectedPrompt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.imageUrl) {
+                    displayAIArt(data.imageUrl, emotion, selectedPrompt);
+                    updateAIArtStatus('complete', emotion);
+                } else {
+                    throw new Error(data.error || 'Failed to generate image');
+                }
+
+            } catch (error) {
+                console.error('Error generating AI art:', error);
+                updateAIArtStatus('error', emotion);
+                showAIArtError(error.message);
+            } finally {
+                showAIArtLoading(false);
+
+                // Set cooldown to prevent too frequent generations
+                setTimeout(() => {
+                    isGeneratingArt = false;
+                }, generationCooldown);
+            }
+        }
+
+        function updateAIArtStatus(status, emotion) {
+            const statusElement = document.getElementById('ai-status');
+            const emotionTag = document.getElementById('current-emotion-tag');
+            const promptPanel = document.getElementById('prompt-panel');
+            const promptElement = document.getElementById('prompt-preview');
+
+            switch (status) {
+                case 'generating':
+                    statusElement.innerHTML = '<div class="live-dot"></div>Generating';
+                    statusElement.style.background = 'var(--apple-orange)';
+                    if (emotionTag) emotionTag.textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+                    if (promptElement) promptElement.textContent = 'Generating AI art based on your emotion...';
+                    break;
+                case 'complete':
+                    statusElement.innerHTML = '<div class="live-dot"></div>Complete';
+                    statusElement.style.background = 'var(--apple-green)';
+                    break;
+                case 'error':
+                    statusElement.innerHTML = '⚠️ Error';
+                    statusElement.style.background = 'var(--apple-red)';
+                    break;
+                default:
+                    statusElement.innerHTML = '<div class="live-dot"></div>Ready';
+                    statusElement.style.background = 'var(--apple-purple)';
+            }
+        }
+
+        function showAIArtLoading(show) {
+            const loadingElement = document.getElementById('ai-loading');
+            if (loadingElement) {
+                loadingElement.style.display = show ? 'flex' : 'none';
+            }
+        }
+
+        function displayAIArt(imageUrl, emotion, prompt) {
+            const imageElement = document.getElementById('ai-art-image');
+            const placeholderElement = document.getElementById('ai-placeholder');
+            const promptPanel = document.getElementById('prompt-panel');
+            const promptElement = document.getElementById('prompt-preview');
+            const emotionTag = document.getElementById('current-emotion-tag');
+
+            if (imageElement && placeholderElement) {
+                // Hide placeholder and show image
+                placeholderElement.style.display = 'none';
+                imageElement.src = imageUrl;
+                imageElement.style.display = 'block';
+                imageElement.onload = () => {
+                    imageElement.style.opacity = '1';
+                };
+
+                // Update prompt panel in emotion panel
+                if (promptElement && emotionTag) {
+                    emotionTag.textContent = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+                    promptElement.textContent = prompt;
+                }
+
+                console.log(`AI art displayed for emotion: ${emotion}`);
+            }
+        }
+
+        function showAIArtError(message) {
+            const placeholderElement = document.getElementById('ai-placeholder');
+            if (placeholderElement) {
+                placeholderElement.innerHTML = `
+                    <div class="title">Generation Failed</div>
+                    <p class="description">${message}</p>
+                `;
+            }
         }
 
         function showError(message) {
@@ -952,8 +1632,35 @@
             document.getElementById('error').style.display = 'none';
         }
 
-        // Load models when page loads
-        window.addEventListener('load', loadModels);
+        // Check API health and load models when page loads
+        async function checkAPIHealth() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/health`);
+                if (response.ok) {
+                    console.log('✅ AI Art API is available');
+                    updateAIArtStatus('ready');
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                console.warn('⚠️ AI Art API not available:', error.message);
+                updateAIArtStatus('error');
+                const placeholderElement = document.getElementById('ai-placeholder');
+                if (placeholderElement) {
+                    placeholderElement.innerHTML = `
+                        <div class="icon">🔌</div>
+                        <div class="title">API Not Available</div>
+                        <p class="description">Start the backend server to enable AI art generation. See README_API_SETUP.md for instructions.</p>
+                    `;
+                }
+            }
+        }
+
+        // Load models and check API when page loads
+        window.addEventListener('load', () => {
+            loadModels();
+            checkAPIHealth();
+        });
     </script>
 </body>
 </html>
