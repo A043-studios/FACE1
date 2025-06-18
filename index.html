@@ -2,11 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1a1a1a">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facial Emotion Detector</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <style>
@@ -84,24 +80,6 @@
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        /* Allow text selection for specific elements */
-        .debug-content,
-        .prompt-preview,
-        .tips-content,
-        .privacy-note .description,
-        .footer-description {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
         }
 
         body {
@@ -110,21 +88,12 @@
             padding: 0;
             background: var(--bg-gradient);
             min-height: 100vh;
-            min-height: -webkit-fill-available; /* iOS Safari fix */
             color: var(--text-primary);
             line-height: 1.5;
             font-size: 14px;
             font-weight: 400;
             position: relative;
             letter-spacing: -0.01em;
-            overflow-x: hidden;
-            /* Mobile performance optimizations */
-            -webkit-overflow-scrolling: touch;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            /* Safe area support for notched devices */
-            padding-left: env(safe-area-inset-left);
-            padding-right: env(safe-area-inset-right);
         }
 
         body::before {
@@ -141,15 +110,8 @@
         .app-container {
             width: 100%;
             min-height: 100vh;
-            min-height: -webkit-fill-available; /* iOS Safari fix */
             padding: 0;
             position: relative;
-            /* Mobile performance */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            /* Safe area support */
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
         }
 
 
@@ -311,11 +273,6 @@
             height: 100%;
             object-fit: cover;
             border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-            /* Mobile optimizations */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            /* Improve mobile performance */
-            will-change: transform;
         }
 
         canvas {
@@ -327,10 +284,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Mobile optimizations */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-            will-change: transform;
         }
 
         .debug-panel {
@@ -592,16 +545,6 @@
             letter-spacing: -0.01em;
             box-shadow: var(--shadow-glass);
             border: 1px solid transparent;
-            /* Mobile touch optimizations */
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            /* Ensure minimum touch target size */
-            min-height: 44px;
-            /* Improve mobile performance */
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
         }
 
         .btn-primary:hover {
@@ -748,13 +691,12 @@
             line-height: 1.5;
         }
 
-        /* Enhanced Mobile-First Responsive Design */
+        /* Responsive design */
         @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
                 gap: var(--spacing-md);
                 padding: var(--spacing-md);
-                min-height: auto;
             }
 
             .info-column {
@@ -766,14 +708,8 @@
             }
 
             .ai-art-overlay {
-                width: 280px;
-                max-width: 40%;
-                bottom: var(--spacing-md);
-                right: var(--spacing-md);
-            }
-
-            .video-container {
-                min-height: 300px;
+                width: 250px;
+                max-width: 35%;
             }
         }
 
@@ -788,28 +724,21 @@
                 padding-bottom: var(--spacing-sm);
             }
 
-            .panel-header h1 {
-                font-size: 1.5rem;
-            }
-
             .ai-art-overlay {
-                position: relative;
-                width: 100%;
-                max-width: 100%;
-                bottom: auto;
-                right: auto;
-                margin-top: var(--spacing-md);
-                order: 3;
+                width: 200px;
+                max-width: 45%;
+                bottom: var(--spacing-sm);
+                right: var(--spacing-sm);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: var(--spacing-xl) var(--spacing-md);
             }
 
-            .video-container {
-                position: relative;
-                min-height: 250px;
-            }
-
-            .content-column {
-                display: flex;
-                flex-direction: column;
+            .main-grid {
+                padding: var(--spacing-md);
             }
 
             .privacy-note {
@@ -824,242 +753,56 @@
                 padding: var(--spacing-xxl) var(--spacing-md);
             }
 
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+
             .emoji {
-                font-size: 3.5rem;
+                font-size: 4.5rem;
             }
 
             .status-text {
-                font-size: 1.25rem;
+                font-size: 1.5rem;
             }
 
             .btn-primary {
                 width: 100%;
                 justify-content: center;
-                padding: var(--spacing-md) var(--spacing-lg);
-                font-size: 1rem;
-            }
-
-            /* Mobile-optimized video sizing */
-            video {
-                width: 100%;
-                height: auto;
-                min-height: 250px;
-                max-height: 400px;
-            }
-
-            canvas {
-                width: 100%;
-                height: auto;
-                min-height: 250px;
-                max-height: 400px;
             }
         }
 
         @media (max-width: 480px) {
+            .hero-section {
+                padding: var(--spacing-lg) var(--spacing-sm);
+            }
+
             .main-grid {
-                padding: var(--spacing-xs);
-                gap: var(--spacing-xs);
-            }
-
-            .emotion-panel,
-            .video-section {
-                padding: var(--spacing-md);
-            }
-
-            .panel-header h1 {
-                font-size: 1.25rem;
-            }
-
-            .panel-header .subtitle {
-                font-size: 0.8rem;
+                padding: var(--spacing-sm);
             }
 
             .privacy-note {
                 margin: var(--spacing-lg) var(--spacing-sm);
-                padding: var(--spacing-md);
             }
 
             .error-card {
                 margin: var(--spacing-md) var(--spacing-sm);
-                padding: var(--spacing-md);
             }
 
             .footer {
                 padding: var(--spacing-xl) var(--spacing-sm);
             }
 
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+
             .emoji {
-                font-size: 3rem;
-            }
-
-            .status-text {
-                font-size: 1.1rem;
-            }
-
-            .debug-panel,
-            .prompt-panel {
-                padding: var(--spacing-sm);
-            }
-
-            .debug-title,
-            .prompt-title {
-                font-size: 0.8rem;
-            }
-
-            .debug-content {
-                font-size: 0.7rem;
-                padding: var(--spacing-xs);
-            }
-
-            .tips-card {
-                padding: var(--spacing-md);
-                margin-top: var(--spacing-md);
-            }
-
-            .tips-title {
-                font-size: 0.9rem;
-            }
-
-            .tips-content {
-                font-size: 0.8rem;
-            }
-
-            .ai-art-overlay .ai-art-title {
-                font-size: 0.8rem;
-            }
-
-            .ai-art-overlay .ai-art-indicator {
-                font-size: 0.6rem;
-                padding: 2px 4px;
-            }
-
-            /* Smaller video on very small screens */
-            video {
-                min-height: 200px;
-                max-height: 300px;
-            }
-
-            canvas {
-                min-height: 200px;
-                max-height: 300px;
-            }
-
-            .video-container {
-                min-height: 200px;
-            }
-        }
-
-        /* Touch-friendly improvements */
-        @media (hover: none) and (pointer: coarse) {
-            .btn-primary {
-                min-height: 48px;
-                font-size: 1rem;
-                padding: var(--spacing-md) var(--spacing-lg);
-            }
-
-            .ai-art-overlay {
-                padding: var(--spacing-lg);
-            }
-
-            /* Ensure touch targets are large enough */
-            .live-indicator {
-                padding: var(--spacing-sm) var(--spacing-md);
-                font-size: 0.75rem;
-            }
-        }
-
-        /* Landscape mobile orientation */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .main-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: var(--spacing-sm);
-            }
-
-            .info-column {
-                order: 1;
-            }
-
-            .content-column {
-                order: 2;
-            }
-
-            .ai-art-overlay {
-                position: absolute;
-                width: 200px;
-                max-width: 30%;
-                bottom: var(--spacing-sm);
-                right: var(--spacing-sm);
-            }
-
-            .video-container {
-                min-height: 200px;
-            }
-
-            video, canvas {
-                min-height: 200px;
-                max-height: 250px;
-            }
-        }
-
-        /* Extra small mobile devices */
-        @media (max-width: 360px) {
-            .main-grid {
-                padding: var(--spacing-xs);
-                gap: var(--spacing-xs);
+                font-size: 3.5rem;
             }
 
             .emotion-panel,
             .video-section {
-                padding: var(--spacing-sm);
-            }
-
-            .panel-header h1 {
-                font-size: 1.1rem;
-            }
-
-            .emoji {
-                font-size: 2.5rem;
-            }
-
-            .status-text {
-                font-size: 1rem;
-            }
-
-            .debug-panel,
-            .prompt-panel,
-            .tips-card {
-                padding: var(--spacing-sm);
-                margin: var(--spacing-sm) 0;
-            }
-
-            .btn-primary {
-                font-size: 0.9rem;
-                padding: var(--spacing-sm) var(--spacing-md);
-            }
-
-            video, canvas {
-                min-height: 180px;
-                max-height: 250px;
-            }
-
-            .video-container {
-                min-height: 180px;
-            }
-        }
-
-        /* iOS specific fixes */
-        @supports (-webkit-touch-callout: none) {
-            .app-container {
-                min-height: -webkit-fill-available;
-            }
-
-            body {
-                min-height: -webkit-fill-available;
-            }
-
-            /* Fix iOS Safari bottom bar issue */
-            .main-grid {
-                min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 100px);
+                padding: var(--spacing-lg);
             }
         }
 
@@ -1238,7 +981,10 @@
         // AI Art Generation variables
         let isGeneratingArt = false;
         let lastGeneratedEmotion = null;
-        let apiBaseUrl = 'http://localhost:3001/api';
+        // Auto-detect API URL based on environment
+        let apiBaseUrl = window.location.hostname === 'localhost' ?
+            'http://localhost:3001/api' :
+            `${window.location.origin}/api`; // Uses Vercel serverless functions
         let generationCooldown = 5000; // 5 seconds between generations
 
         // Prompt tracking for each emotion
