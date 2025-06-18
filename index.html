@@ -981,10 +981,7 @@
         // AI Art Generation variables
         let isGeneratingArt = false;
         let lastGeneratedEmotion = null;
-        // Try deployed API first, fallback to localhost for development
-        let apiBaseUrl = window.location.hostname === 'localhost' ?
-            'http://localhost:3001/api' :
-            'https://your-deployed-api.herokuapp.com/api'; // Replace with your deployed API URL
+        let apiBaseUrl = 'http://localhost:3001/api';
         let generationCooldown = 5000; // 5 seconds between generations
 
         // Prompt tracking for each emotion
